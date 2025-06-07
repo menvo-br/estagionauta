@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
 import Index from "./pages/Index";
-import AnaliseeCurriculo from "./pages/AnaliseeCurriculo";
+import AnaliseeCurriculo from "./pages/Analisecurriculo";
 import Sucesso from "./pages/Sucesso";
 import MapaAgencias from "./pages/MapaAgencias";
 import CalculadoraRecesso from "./pages/CalculadoraRecesso";
