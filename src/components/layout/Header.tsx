@@ -1,7 +1,5 @@
 
-'use client'
-
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -21,7 +19,7 @@ export function Header() {
     <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">E</span>
             </div>
@@ -33,19 +31,19 @@ export function Header() {
 
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           <Link
-            href="/mapa-agencias"
+            to="/mapa-agencias"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
             Mapa de Agências
           </Link>
           <Link
-            href="/calculadora-recesso"
+            to="/calculadora-recesso"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
             Calculadora
           </Link>
           <Link
-            href="/analise-curriculo"
+            to="/analise-curriculo"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
             Análise de Currículo
@@ -76,25 +74,25 @@ export function Header() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard">
+                  <Link to="/dashboard">
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/mentores">
+                  <Link to="/mentores">
                     <Users className="mr-2 h-4 w-4" />
                     Mentores
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/admin">
+                  <Link to="/admin">
                     <BarChart3 className="mr-2 h-4 w-4" />
                     Admin
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/configuracoes">
+                  <Link to="/configuracoes">
                     <Settings className="mr-2 h-4 w-4" />
                     Configurações
                   </Link>
@@ -109,10 +107,10 @@ export function Header() {
           ) : (
             <div className="flex items-center space-x-2">
               <Button variant="ghost" asChild>
-                <Link href="/login">Entrar</Link>
+                <Link to="/login">Entrar</Link>
               </Button>
               <Button asChild>
-                <Link href="/cadastro">Cadastrar</Link>
+                <Link to="/cadastro">Cadastrar</Link>
               </Button>
             </div>
           )}

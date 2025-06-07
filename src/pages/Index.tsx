@@ -1,5 +1,5 @@
 
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -29,13 +29,13 @@ export default function HomePage() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold" asChild>
-              <Link href="/analise-curriculo">
+              <Link to="/analise-curriculo">
                 <FileText className="mr-2 h-5 w-5" />
                 Analisar Currículo Grátis
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link href="/mentores">
+              <Link to="/mentores">
                 <Users className="mr-2 h-5 w-5" />
                 Encontrar Mentores
               </Link>
@@ -108,7 +108,7 @@ export default function HomePage() {
                   </li>
                 </ul>
                 <Button className="w-full" asChild>
-                  <Link href="/analise-curriculo">
+                  <Link to="/analise-curriculo">
                     Analisar Grátis
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -144,7 +144,7 @@ export default function HomePage() {
                   </li>
                 </ul>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link href="/mapa-agencias">
+                  <Link to="/mapa-agencias">
                     Explorar Mapa
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -180,7 +180,7 @@ export default function HomePage() {
                   </li>
                 </ul>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link href="/calculadora-recesso">
+                  <Link to="/calculadora-recesso">
                     Calcular Recesso
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -248,13 +248,13 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100" asChild>
-              <Link href="/analise-curriculo">
+              <Link to="/analise-curriculo">
                 Começar Agora
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link href="/sobre">
+              <Link to="/sobre">
                 Saber Mais
               </Link>
             </Button>

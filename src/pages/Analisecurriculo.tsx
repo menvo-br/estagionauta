@@ -11,12 +11,9 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Upload, FileText, Brain, ArrowRight, ArrowLeft, Gift } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
+import { useNavigate } from 'react-router-dom'
 
-interface ResumeAnalysisFormProps {
-  onComplete: (data: any) => void
-}
-
-export function ResumeAnalysisForm({ onComplete }: ResumeAnalysisFormProps) {
+export default function AnalyseCurriculoPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
     // Basic info
@@ -40,6 +37,8 @@ export function ResumeAnalysisForm({ onComplete }: ResumeAnalysisFormProps) {
     // File upload
     resumeFile: null as File | null
   })
+  
+  const navigate = useNavigate()
 
   const steps = [
     { title: "Perfil", description: "Informações básicas" },
@@ -76,7 +75,13 @@ export function ResumeAnalysisForm({ onComplete }: ResumeAnalysisFormProps) {
   }
 
   const handleSubmit = async () => {
-    onComplete(formData)
+    // Here you would send the data to your API
+    console.log('Form data:', formData)
+    
+    // Simulate API call
+    setTimeout(() => {
+      navigate('/analise-curriculo/sucesso')
+    }, 1000)
   }
 
   const updateFormData = (field: string, value: string) => {
@@ -338,106 +343,110 @@ export function ResumeAnalysisForm({ onComplete }: ResumeAnalysisFormProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">
-          Análise Gratuita de Currículo 🎯
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Responda algumas perguntas rápidas e receba uma análise completa do seu currículo
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              Análise Gratuita de Currículo 🎯
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Responda algumas perguntas rápidas e receba uma análise completa do seu currículo
+            </p>
+          </div>
 
-      {/* Progress */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium">
-            Etapa {currentStep + 1} de {steps.length}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            {Math.round(((currentStep + 1) / steps.length) * 100)}%
-          </span>
-        </div>
-        <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
-      </div>
-
-      {/* Steps indicator */}
-      <div className="flex justify-between mb-8">
-        {steps.map((step, index) => (
-          <div
-            key={index}
-            className={`flex flex-col items-center space-y-2 ${
-              index <= currentStep ? 'text-blue-600' : 'text-gray-400'
-            }`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                index <= currentStep
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-500'
-              }`}
-            >
-              {index + 1}
+          {/* Progress */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">
+                Etapa {currentStep + 1} de {steps.length}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {Math.round(((currentStep + 1) / steps.length) * 100)}%
+              </span>
             </div>
-            <div className="text-center">
-              <div className="text-sm font-medium">{step.title}</div>
-              <div className="text-xs text-muted-foreground hidden sm:block">
-                {step.description}
+            <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
+          </div>
+
+          {/* Steps indicator */}
+          <div className="flex justify-between mb-8">
+            {steps.map((step, index) => (
+              <div
+                key={index}
+                className={`flex flex-col items-center space-y-2 ${
+                  index <= currentStep ? 'text-blue-600' : 'text-gray-400'
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    index <= currentStep
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-medium">{step.title}</div>
+                  <div className="text-xs text-muted-foreground hidden sm:block">
+                    {step.description}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
+
+          {/* Form Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                </div>
+                <span>{steps[currentStep].title}</span>
+              </CardTitle>
+              <CardDescription>
+                {steps[currentStep].description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderStep()}
+
+              {/* Navigation */}
+              <div className="flex justify-between pt-6 border-t">
+                <Button
+                  variant="outline"
+                  onClick={handlePrev}
+                  disabled={currentStep === 0}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Anterior
+                </Button>
+
+                {currentStep === steps.length - 1 ? (
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!isStepValid()}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    <Gift className="mr-2 h-4 w-4" />
+                    Enviar e Receber Análise
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNext}
+                    disabled={!isStepValid()}
+                  >
+                    Próximo
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <FileText className="h-4 w-4 text-blue-600" />
-            </div>
-            <span>{steps[currentStep].title}</span>
-          </CardTitle>
-          <CardDescription>
-            {steps[currentStep].description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderStep()}
-
-          {/* Navigation */}
-          <div className="flex justify-between pt-6 border-t">
-            <Button
-              variant="outline"
-              onClick={handlePrev}
-              disabled={currentStep === 0}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Anterior
-            </Button>
-
-            {currentStep === steps.length - 1 ? (
-              <Button
-                onClick={handleSubmit}
-                disabled={!isStepValid()}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                <Gift className="mr-2 h-4 w-4" />
-                Enviar e Receber Análise
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!isStepValid()}
-              >
-                Próximo
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

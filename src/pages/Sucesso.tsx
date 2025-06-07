@@ -1,5 +1,5 @@
 
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle, Mail, Clock, Gift, ArrowLeft } from 'lucide-react'
@@ -69,17 +69,17 @@ export default function SucessoPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="outline" size="sm" asChild>
-                <Link href="/mapa-agencias">
+                <Link to="/mapa-agencias">
                   Explorar Agências de Estágio
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/calculadora-recesso">
+                <Link to="/calculadora-recesso">
                   Calcular Recesso
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/mentores">
+                <Link to="/mentores">
                   Encontrar Mentores
                 </Link>
               </Button>
@@ -92,21 +92,21 @@ export default function SucessoPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button variant="outline" asChild>
-                <Link href="mailto:contato@estagionauta.com.br">
+                <a href="mailto:contato@estagionauta.com.br">
                   Enviar Email
-                </Link>
+                </a>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="https://instagram.com/estagionauta" target="_blank">
+                <a href="https://instagram.com/estagionauta" target="_blank" rel="noopener noreferrer">
                   Seguir no Instagram
-                </Link>
+                </a>
               </Button>
             </div>
           </div>
 
           <div className="text-center mt-8">
             <Button asChild>
-              <Link href="/">
+              <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar ao Início
               </Link>
