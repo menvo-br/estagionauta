@@ -7,108 +7,200 @@ Uma plataforma que conecta universitários a mentores voluntários, oferece aná
 
 ## ✨ Funcionalidades
 
-### 🎯 Core Features
-- **Análise de Currículo com IA**: Avaliação completa usando OpenAI com notas e sugestões personalizadas
-- **Formulário Multistep com A/B Testing**: Duas variantes (Menvo vs Career) para validação
-- **Mapa de Agências**: Discover e avalie agências de estágio (em desenvolvimento)
-- **Calculadora de Recesso**: Cálculo automático baseado na Lei 11.788/2008
-- **Sistema de Mentoria**: Conecte-se com mentores voluntários verificados
+### ✅ Implementado
+- **Sistema de Autenticação**: Login/Cadastro com email/senha, Google e LinkedIn
+- **Perfis de Usuário**: Sistema completo com roles (student, admin, moderator, agency)
+- **Análise de Currículo com IA**: Upload de PDF e análise (estrutura pronta)
+- **Mapa de Agências**: Interface básica com listagem de agências
+- **Calculadora de Recesso**: Baseada na Lei 11.788/2008
+- **Sistema de Roles**: RBAC com Custom Claims no JWT
+- **Database Schema**: Todas as tabelas necessárias criadas
 
-### 🛠 Tecnologias
-- **Frontend**: Next.js 14 (App Router), React, TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-- **UI**: Shadcn/ui, Radix UI, Framer Motion
-- **AI**: OpenAI GPT-4 para análise de currículos
-- **State Management**: React Query/TanStack Query
-- **Forms**: React Hook Form + Zod validation
+### 🚧 Em Desenvolvimento
+- **Análise de Currículo**: Integração com OpenAI para análise real
+- **Sistema de Créditos**: Controle de análises gratuitas (2/mês)
+- **Pagamentos Stripe**: Planos e pacotes de análise
+- **Moderação**: Sistema para avaliações e comentários
+- **Geolocalização**: Ordenação de agências por proximidade
+- **Compartilhamento**: WhatsApp, Email e PDF para resultados
 
-## 🚀 Quick Start
+### 📋 Pendente
+- **Painel Administrativo**: Gestão completa de usuários e moderação
+- **Sistema de Denúncias**: Reportar agências fraudulentas
+- **Leaflet Maps**: Visualização em mapa das agências
+- **Autocomplete CEP**: Preenchimento automático de endereços
+- **Email Service**: Envio de análises por email
 
-### 1. Conectar Supabase
-1. Clique no botão verde "Supabase" no topo direito da interface Lovable
-2. Conecte sua conta e crie um novo projeto
-3. Execute o script SQL em `src/sql/schema.sql` no SQL Editor do Supabase
+## 🔧 Configuração
 
-### 2. Configurar Variáveis de Ambiente
+### 1. Pré-requisitos
+- Node.js 18+ 
+- Conta Supabase
+- Conta Stripe (para pagamentos)
+- OpenAI API Key (para análises)
+
+### 2. Variáveis de Ambiente
+Copie `.env.example` para `.env.local` e configure:
+
 ```bash
-# Copie o arquivo de exemplo
-cp .env.example .env.local
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
 
-# Configure as variáveis:
-NEXT_PUBLIC_SUPABASE_URL=sua_url_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
-SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
-OPENAI_API_KEY=sua_chave_openai
+# OpenAI Configuration  
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### 3. Executar Localmente
+### 3. Configuração do Supabase
+
+#### a) Custom Claims Hook
+Configure o hook para adicionar roles no JWT:
+```sql
+-- Já executado no schema inicial
+-- Verifica se a função custom_access_token_hook está configurada
+```
+
+#### b) OAuth Providers
+Configure no Supabase Dashboard > Authentication > Providers:
+- **Google OAuth**: Adicione Client ID e Secret
+- **LinkedIn OIDC**: Configure provider
+
+#### c) URL Configuration
+Configure no Supabase Dashboard > Authentication > URL Configuration:
+- **Site URL**: `http://localhost:3000` (desenvolvimento)
+- **Redirect URLs**: 
+  - `http://localhost:3000/**`
+  - `https://yourdomain.com/**` (produção)
+
+### 4. Instalação
 ```bash
 npm install
 npm run dev
 ```
 
-## 📋 Comandos SQL para Supabase
+## 🎯 Checklist de Funcionalidades
 
-Execute os comandos em `src/sql/schema.sql` no SQL Editor do Supabase para criar:
+### Autenticação ✅
+- [x] Login com email/senha
+- [x] Cadastro de usuários
+- [x] Recuperação de senha
+- [x] Login social (Google/LinkedIn)
+- [x] Sistema de roles (RBAC)
+- [x] Perfis de usuário
 
-- ✅ Todas as tabelas necessárias
-- ✅ Políticas RLS (Row Level Security)
-- ✅ Triggers e funções automáticas
-- ✅ Dados de exemplo (categorias, eventos, agências)
+### Análise de Currículo 🔄
+- [x] Interface de upload
+- [x] Formulário multistep
+- [x] Estrutura de dados
+- [ ] Integração OpenAI
+- [ ] Sistema de créditos
+- [ ] Página de resultados
+- [ ] Download PDF
+- [ ] Compartilhamento WhatsApp/LinkedIn
+- [ ] Envio por email
 
-## 🎨 Design System
+### Pagamentos 📋
+- [ ] Configuração Stripe
+- [ ] Página de planos
+- [ ] Checkout integration
+- [ ] Webhooks
+- [ ] Gestão de assinaturas
+- [ ] Sistema de créditos
 
-O projeto usa um design system customizado baseado no Shadcn/ui:
+### Mapa de Agências 🔄
+- [x] Interface básica
+- [x] Listagem de agências
+- [x] Sistema de avaliações (estrutura)
+- [ ] Filtros funcionais
+- [ ] Debounce na busca
+- [ ] Geolocalização
+- [ ] Mapa Leaflet
+- [ ] Moderação de comentários
+- [ ] Formulário de cadastro
 
-- **Cores Primárias**: Azul (#3B82F6) e Roxo (#8B5CF6)
-- **Tipografia**: Inter font family
-- **Componentes**: Reutilizáveis e acessíveis
-- **Responsividade**: Mobile-first approach
+### Calculadora de Recesso ✅
+- [x] Cálculo básico
+- [ ] Data final opcional
+- [ ] Compartilhamento
+- [ ] Download PDF
 
-## 📊 A/B Testing
+### Administração 📋
+- [ ] Painel admin
+- [ ] Gestão de usuários
+- [ ] Moderação de conteúdo
+- [ ] Sistema de denúncias
+- [ ] Validação de agências
 
-O formulário de análise de currículo possui duas variantes:
+## 🚀 Deployment
 
-1. **Variant "menvo"**: Foca em validar a ideia do Menvo
-2. **Variant "career"**: Direcionado aos objetivos de carreira
+### Configuração de Produção
+1. **Supabase**: Configure URLs de produção
+2. **Stripe**: Use chaves de produção
+3. **OAuth**: Configure domínios de produção
+4. **Build**: `npm run build`
 
-Para testar específicamente uma variante, use:
-- `/analise-curriculo?variant=menvo`
-- `/analise-curriculo?variant=career`
+### Domínio Personalizado
+Configure no Lovable: Project > Settings > Domains
 
-## 🔐 Segurança
+## 📊 Estratégia de Eventos
 
-- **RLS**: Todas as tabelas protegidas com Row Level Security
-- **Autenticação**: Supabase Auth com múltiplos provedores
-- **Validação**: Frontend e backend com Zod schemas
-- **Uploads**: Arquivos armazenados no Supabase Storage com políticas restritas
+### UPE Destaca 2024
+- **Landing Page**: Formulário de interesse
+- **QR Code**: `https://estagionauta.com.br/?utm_source=upe_destaca`
+- **Análise Gratuita**: Primeira análise grátis para participantes
+- **Disclaimer Beta**: Avisos sobre funcionalidades em desenvolvimento
 
-## 📱 Funcionalidades Futuras
+### Tracking de Origem
+- URL com parâmetros: `?source=upe_destaca`
+- Captura via JavaScript
+- Armazenamento no perfil do usuário
 
-- [ ] Mapa interativo de agências
-- [ ] Sistema de avaliações de agências
-- [ ] Chat em tempo real mentor-mentee
-- [ ] Workshops e eventos online
-- [ ] Mobile app (React Native)
-- [ ] Integração com LinkedIn
+## 💰 Modelo de Negócio
 
-## 🤝 Como Contribuir
+### Análise de Currículo
+- **Gratuito**: 2 análises/mês para usuários logados
+- **Avulso**: 
+  - 1 análise: R$ 9,99
+  - 5 análises: R$ 19,99
+  - 10 análises: R$ 29,99
+- **Assinatura**:
+  - Mensal: R$ 19,90 (5 análises + suporte)
+  - Anual: R$ 199,00 (60 análises + suporte)
+
+### Agências
+- **Cadastro Gratuito**: Para agências verificadas
+- **Premium**: Destaque na busca (futuro)
+
+## 🛡️ Segurança
+
+- **RLS**: Row Level Security em todas as tabelas
+- **RBAC**: Role-based Access Control
+- **JWT Claims**: Roles no token de acesso
+- **Validação**: Frontend e backend com Zod
+- **Moderação**: Conteúdo passa por aprovação
+
+## 🤝 Contribuição
 
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push (`git push origin feature/nova-funcionalidade`)
+5. Pull Request
 
-## 📄 Licença
+## 📞 Contato
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## 💜 Feito com amor para a comunidade estudantil
-
-O Estagionauta é um projeto social que visa democratizar o acesso à orientação de carreira para universitários brasileiros.
+- **Email**: contato@estagionauta.com.br
+- **Instagram**: [@estagionauta](https://instagram.com/estagionauta)
+- **Site Menvo**: [menvo.com.br](https://menvo.com.br)
 
 ---
 
-**Contato**: contato@estagionauta.com.br
-**Instagram**: [@estagionauta](https://instagram.com/estagionauta)
+**Desenvolvido com ❤️ para a comunidade estudantil brasileira**
