@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState, useEffect, createContext, useContext } from 'react'
+import React, { useState, useEffect, createContext, useContext } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 import { jwtDecode } from 'jwt-decode'
@@ -13,8 +13,8 @@ interface UserProfile {
   avatar_url: string | null
   role: 'student' | 'admin' | 'moderator' | 'agency'
   credits: number
-  subscription_status: 'free' | 'active' | 'cancelled' | 'past_due'
-  subscription_tier: 'monthly' | 'annual' | null
+  subscription_status: string
+  subscription_tier: string | null
   location_enabled: boolean
 }
 
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null
       }
       
-      return data
+      return data as UserProfile
     } catch (error) {
       console.error('Error fetching user profile:', error)
       return null
@@ -84,7 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (session?.user) {
-        fetchUserProfile(session.user.id).then(setProfile)
+        fetchUserProfile(session.user.id).then((profileData) => {
+          setProfile(profileData)
+        })
       }
       
       setLoading(false)
