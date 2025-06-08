@@ -12,11 +12,14 @@ import { Progress } from '@/components/ui/progress'
 import { Upload, FileText, Brain, ArrowRight, ArrowLeft, Gift } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function AnalyseCurriculoPage() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    // Basic info
     name: '',
     email: '',
     course: '',
@@ -24,21 +27,17 @@ export default function AnalyseCurriculoPage() {
     period: '',
     hasInternship: '',
     hasLinkedIn: '',
-    
-    // Mentorship interests
     mentorshipTopics: '',
     hasParticipated: '',
     hasInterest: '',
-    
-    // About Menvo
     howHeard: '',
     feedback: '',
-    
-    // File upload
     resumeFile: null as File | null
   })
   
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const { user, profile } = useAuth()
 
   const steps = [
     { title: "Perfil", description: "Informações básicas" },
@@ -74,14 +73,74 @@ export default function AnalyseCurriculoPage() {
     }
   }
 
-  const handleSubmit = async () => {
-    // Here you would send the data to your API
-    console.log('Form data:', formData)
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    // Simple text extraction - in production, use a proper PDF parser
+    return `Conteúdo do PDF extraído: ${file.name}. 
+    Esta é uma simulação da extração de texto do PDF.
+    O arquivo tem ${file.size} bytes.
     
-    // Simulate API call
-    setTimeout(() => {
-      navigate('/analise-curriculo/sucesso')
-    }, 1000)
+    Exemplo de conteúdo de currículo:
+    Nome: ${formData.name}
+    Curso: ${formData.course}
+    Universidade: ${formData.university}
+    
+    Experiência:
+    - Projeto acadêmico em ${formData.course}
+    - Participação em eventos da universidade
+    
+    Habilidades:
+    - Comunicação
+    - Trabalho em equipe
+    - Resolução de problemas`;
+  }
+
+  const handleSubmit = async () => {
+    if (!formData.resumeFile) {
+      toast({
+        title: "Erro",
+        description: "Por favor, anexe seu currículo em PDF.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      // Extract text from PDF
+      const resumeText = await extractTextFromPDF(formData.resumeFile)
+
+      // Call the analysis function
+      const { data, error } = await supabase.functions.invoke('analyze-resume', {
+        body: {
+          resumeText,
+          formData
+        }
+      })
+
+      if (error) {
+        console.error('Analysis error:', error)
+        throw error
+      }
+
+      toast({
+        title: "Análise concluída!",
+        description: "Seu currículo foi analisado com sucesso.",
+      })
+
+      // Redirect to results page
+      navigate(`/resultado-curriculo/${data.analysisId}`)
+
+    } catch (error) {
+      console.error('Error submitting analysis:', error)
+      toast({
+        title: "Erro na análise",
+        description: "Ocorreu um erro ao analisar seu currículo. Tente novamente.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const updateFormData = (field: string, value: string) => {
@@ -267,6 +326,11 @@ export default function AnalyseCurriculoPage() {
               <p className="text-muted-foreground">
                 Anexe seu currículo em PDF para uma análise gratuita com ajuda de IA
               </p>
+              {user && profile && (
+                <Badge variant="outline" className="mt-2">
+                  {profile.credits} análises restantes este mês
+                </Badge>
+              )}
             </div>
 
             <div
@@ -314,7 +378,8 @@ export default function AnalyseCurriculoPage() {
                     <li>• Nota geral do seu currículo (0-10)</li>
                     <li>• Análise detalhada em 7 critérios</li>
                     <li>• Sugestões personalizadas de melhoria</li>
-                    <li>• Resultado enviado por email em até 48h</li>
+                    <li>• Gráfico interativo com seus pontos fortes</li>
+                    <li>• Opções de download em PDF e compartilhamento</li>
                   </ul>
                 </div>
               </div>
@@ -427,11 +492,11 @@ export default function AnalyseCurriculoPage() {
                 {currentStep === steps.length - 1 ? (
                   <Button
                     onClick={handleSubmit}
-                    disabled={!isStepValid()}
+                    disabled={!isStepValid() || loading}
                     className="bg-purple-600 hover:bg-purple-700"
                   >
                     <Gift className="mr-2 h-4 w-4" />
-                    Enviar e Receber Análise
+                    {loading ? "Analisando..." : "Enviar e Receber Análise"}
                   </Button>
                 ) : (
                   <Button

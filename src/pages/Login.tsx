@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Lock, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { useEffect } from 'react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -18,6 +20,14 @@ export default function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { user } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()

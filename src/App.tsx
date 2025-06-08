@@ -10,6 +10,7 @@ import { Header } from "@/components/layout/Header";
 import Index from "./pages/Index";
 import Analisecurriculo from "./pages/Analisecurriculo";
 import Sucesso from "./pages/Sucesso";
+import ResultadoCurriculo from "./pages/ResultadoCurriculo";
 import MapaAgencias from "./pages/MapaAgencias";
 import CalculadoraRecesso from "./pages/CalculadoraRecesso";
 import Admin from "./pages/Admin";
@@ -40,13 +41,13 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/analise-curriculo" element={<Analisecurriculo />} />
                   <Route path="/analise-curriculo/sucesso" element={<Sucesso />} />
+                  <Route path="/resultado-curriculo/:id" element={<ResultadoCurriculo />} />
                   <Route path="/mapa-agencias" element={<MapaAgencias />} />
                   <Route path="/calculadora-recesso" element={<CalculadoraRecesso />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Cadastro />} />
                   <Route path="/esqueci-senha" element={<EsqueciSenha />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

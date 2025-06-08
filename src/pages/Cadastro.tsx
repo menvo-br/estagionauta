@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Lock, User, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Cadastro() {
   const [fullName, setFullName] = useState('')
@@ -20,6 +21,14 @@ export default function Cadastro() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { user } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +55,7 @@ export default function Cadastro() {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: `${window.location.origin}/`,
         },
       })
 

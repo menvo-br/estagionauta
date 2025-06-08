@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect, createContext, useContext } from 'react'
-import { User } from '@supabase/supabase-js'
+import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 import { jwtDecode } from 'jwt-decode'
 
@@ -21,6 +21,7 @@ interface UserProfile {
 interface AuthContextType {
   user: User | null
   profile: UserProfile | null
+  session: Session | null
   loading: boolean
   userRole: string | null
   signOut: () => Promise<void>
@@ -30,6 +31,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
+  session: null,
   loading: true,
   userRole: null,
   signOut: async () => {},
@@ -39,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
 
@@ -70,31 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      
-      if (session?.access_token) {
-        try {
-          const jwt = jwtDecode(session.access_token) as any
-          setUserRole(jwt.user_role || null)
-        } catch (error) {
-          console.error('Error decoding JWT:', error)
-        }
-      }
-      
-      if (session?.user) {
-        fetchUserProfile(session.user.id).then((profileData) => {
-          setProfile(profileData)
-        })
-      }
-      
-      setLoading(false)
-    })
-
-    // Listen for auth changes
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
+        
+        setSession(session)
         setUser(session?.user ?? null)
         
         if (session?.access_token) {
@@ -110,8 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         if (session?.user) {
-          const profileData = await fetchUserProfile(session.user.id)
-          setProfile(profileData)
+          // Defer profile fetch to avoid blocking auth flow
+          setTimeout(async () => {
+            const profileData = await fetchUserProfile(session.user.id)
+            setProfile(profileData)
+          }, 0)
         } else {
           setProfile(null)
         }
@@ -120,15 +107,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     )
 
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSession(session)
+        setUser(session.user)
+        
+        if (session.access_token) {
+          try {
+            const jwt = jwtDecode(session.access_token) as any
+            setUserRole(jwt.user_role || null)
+          } catch (error) {
+            console.error('Error decoding JWT:', error)
+          }
+        }
+        
+        if (session.user) {
+          fetchUserProfile(session.user.id).then((profileData) => {
+            setProfile(profileData)
+          })
+        }
+      }
+      setLoading(false)
+    })
+
     return () => subscription.unsubscribe()
   }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, userRole, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      profile, 
+      session, 
+      loading, 
+      userRole, 
+      signOut, 
+      refreshProfile 
+    }}>
       {children}
     </AuthContext.Provider>
   )
