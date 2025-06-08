@@ -67,7 +67,13 @@ export default function ResultadoCurriculo() {
         return
       }
 
-      setAnalysis(data)
+      // Cast the analysis_data from Json to AnalysisData
+      const analysisWithTypedData = {
+        ...data,
+        analysis_data: data.analysis_data as AnalysisData
+      }
+
+      setAnalysis(analysisWithTypedData)
     } catch (error) {
       console.error('Error:', error)
       toast({
