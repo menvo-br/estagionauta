@@ -67,10 +67,10 @@ export default function ResultadoCurriculo() {
         return
       }
 
-      // Cast the analysis_data from Json to AnalysisData
+      // Cast the analysis_data from Json to AnalysisData via unknown
       const analysisWithTypedData = {
         ...data,
-        analysis_data: data.analysis_data as AnalysisData
+        analysis_data: data.analysis_data as unknown as AnalysisData
       }
 
       setAnalysis(analysisWithTypedData)
