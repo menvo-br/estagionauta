@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
@@ -12,11 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, Settings, LogOut, BarChart3, FileText, CreditCard, Menu } from 'lucide-react'
+import { User, Settings, LogOut, BarChart3, FileText, CreditCard, Menu, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
 
 export function Header() {
-  const { user, profile, signOut, loading } = useAuth()
+  const { user, profile, signOut, loading, isSupabaseAvailable } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   if (loading) {
@@ -64,6 +63,9 @@ export function Header() {
         <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
           Grátis
         </Badge>
+        {!isSupabaseAvailable && (
+          <AlertCircle className="h-3 w-3 text-yellow-500" title="Funcionalidade limitada - Supabase não configurado" />
+        )}
       </Link>
       <Button variant="ghost" asChild size={mobile ? "default" : "sm"}>
         <a 
@@ -109,7 +111,19 @@ export function Header() {
               <div className="flex flex-col space-y-6 pt-6">
                 <NavLinks mobile onLinkClick={() => setMobileMenuOpen(false)} />
                 
-                {user && profile ? (
+                {/* Aviso sobre Supabase */}
+                {!isSupabaseAvailable && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="h-4 w-4 text-yellow-600" />
+                      <p className="text-sm text-yellow-800">
+                        Algumas funcionalidades estão limitadas
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {user && profile && isSupabaseAvailable ? (
                   <div className="flex flex-col space-y-4 pt-4 border-t">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
@@ -180,16 +194,24 @@ export function Header() {
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-2 pt-4 border-t">
-                    <Button variant="ghost" asChild className="justify-start">
-                      <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                        Entrar
-                      </Link>
-                    </Button>
-                    <Button asChild className="justify-start">
-                      <Link to="/cadastro" onClick={() => setMobileMenuOpen(false)}>
-                        Cadastrar
-                      </Link>
-                    </Button>
+                    {isSupabaseAvailable ? (
+                      <>
+                        <Button variant="ghost" asChild className="justify-start">
+                          <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                            Entrar
+                          </Link>
+                        </Button>
+                        <Button asChild className="justify-start">
+                          <Link to="/cadastro" onClick={() => setMobileMenuOpen(false)}>
+                            Cadastrar
+                          </Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-2">
+                        Login/Cadastro não disponível
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -197,7 +219,7 @@ export function Header() {
           </Sheet>
 
           {/* Desktop User Menu */}
-          {user && profile ? (
+          {user && profile && isSupabaseAvailable ? (
             <div className="hidden md:flex items-center space-x-2">
               {profile.credits > 0 && (
                 <Badge variant="outline" className="text-xs">
@@ -274,12 +296,23 @@ export function Header() {
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              <Button variant="ghost" asChild>
-                <Link to="/login">Entrar</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/cadastro">Cadastrar</Link>
-              </Button>
+              {!isSupabaseAvailable && (
+                <AlertCircle className="h-4 w-4 text-yellow-500" title="Algumas funcionalidades estão limitadas" />
+              )}
+              {isSupabaseAvailable ? (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link to="/login">Entrar</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to="/cadastro">Cadastrar</Link>
+                  </Button>
+                </>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  Login indisponível
+                </span>
+              )}
             </div>
           )}
         </div>
