@@ -76,19 +76,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isSupabaseAvailable) return
     
     try {
-      const { data, error } = await supabase
+      const response = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('id', userId)
-        .maybeSingle()
+        .eq(userId, userId)
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error)
-        return
-      }
+      if (typeof response.then === 'function') {
+        const { data, error } = await response
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error)
+          return
+        }
 
-      if (data) {
-        setProfile(data as Profile)
+        if (data && data.length > 0) {
+          setProfile(data[0] as Profile)
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -179,12 +182,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isSupabaseAvailable || !user) return
 
     try {
-      const { error } = await supabase
+      const response = await supabase
         .from('user_profiles')
         .update(updates)
-        .eq('id', user.id)
+        .eq(user.id, user.id)
 
-      if (error) throw error
+      if (typeof response.then === 'function') {
+        const { error } = await response
+        if (error) throw error
+      }
 
       setProfile(prev => prev ? { ...prev, ...updates } : null)
       

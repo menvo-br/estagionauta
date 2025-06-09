@@ -19,21 +19,30 @@ export const supabase = (() => {
       auth: {
         signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
         signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        signInWithOAuth: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        resetPasswordForEmail: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
         signOut: () => Promise.resolve({ error: null }),
         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
         getSession: () => Promise.resolve({ data: { session: null }, error: null }),
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
       },
       from: () => ({
-        select: () => ({ data: [], error: null }),
-        insert: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
-        update: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
-        delete: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
-        single: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
-        maybeSingle: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
+        select: () => Promise.resolve({ data: [], error: null }),
+        insert: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        update: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        delete: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        eq: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        single: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+        maybeSingle: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
       }),
       functions: {
         invoke: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+      },
+      storage: {
+        from: () => ({
+          upload: () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado' } }),
+          getPublicUrl: () => ({ data: { publicUrl: '' } }),
+        })
       },
     }
   }

@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
@@ -13,10 +14,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { User, Settings, LogOut, BarChart3, FileText, CreditCard, Menu, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
+import { useTheme } from 'next-themes'
+import { Sun, Moon } from 'lucide-react'
 
 export function Header() {
   const { user, profile, signOut, loading, isSupabaseAvailable } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   if (loading) {
     return (
@@ -64,7 +68,7 @@ export function Header() {
           Grátis
         </Badge>
         {!isSupabaseAvailable && (
-          <AlertCircle className="h-3 w-3 text-yellow-500" title="Funcionalidade limitada - Supabase não configurado" />
+          <AlertCircle className="h-3 w-3 text-yellow-500" />
         )}
       </Link>
       <Button variant="ghost" asChild size={mobile ? "default" : "sm"}>
@@ -99,6 +103,17 @@ export function Header() {
         <NavLinks />
 
         <div className="flex items-center space-x-2">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -297,7 +312,7 @@ export function Header() {
           ) : (
             <div className="hidden md:flex items-center space-x-2">
               {!isSupabaseAvailable && (
-                <AlertCircle className="h-4 w-4 text-yellow-500" title="Algumas funcionalidades estão limitadas" />
+                <AlertCircle className="h-4 w-4 text-yellow-500" />
               )}
               {isSupabaseAvailable ? (
                 <>
