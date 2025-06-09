@@ -1,5 +1,4 @@
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,7 +19,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, signIn } = useAuth()
 
   // Redirect if already logged in
   useEffect(() => {
@@ -29,31 +28,20 @@ export default function Login() {
     }
   }, [user, navigate])
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo de volta ao Estagionauta.",
-        })
-        navigate('/')
-      }
-    } catch (error) {
-      setError('Erro inesperado. Tente novamente.')
-    } finally {
-      setLoading(false)
+    const { error } = await signIn(email, password)
+    
+    if (!error) {
+      navigate('/')
+    } else {
+      setError(error.message)
     }
+    
+    setLoading(false)
   }
 
   const handleSocialLogin = async (provider: 'google' | 'linkedin_oidc') => {
@@ -66,18 +54,10 @@ export default function Login() {
       })
 
       if (error) {
-        toast({
-          title: "Erro no login",
-          description: error.message,
-          variant: "destructive",
-        })
+        setError(error.message)
       }
     } catch (error) {
-      toast({
-        title: "Erro no login",
-        description: "Erro inesperado. Tente novamente.",
-        variant: "destructive",
-      })
+      setError('Erro inesperado. Tente novamente.')
     }
   }
 
@@ -87,7 +67,7 @@ export default function Login() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">Entrar</CardTitle>
           <CardDescription className="text-center">
-            Acesse sua conta no Estagionauta
+            Faça login em sua conta do Estagionauta
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -142,12 +122,12 @@ export default function Login() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Ou continue com email
+                Ou entre com email
               </span>
             </div>
           </div>
 
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -185,13 +165,13 @@ export default function Login() {
           </form>
 
           <div className="text-center space-y-2">
-            <Link to="/esqueci-senha" className="text-sm text-muted-foreground hover:text-primary">
-              Esqueci minha senha
+            <Link to="/esqueci-senha" className="text-sm text-primary hover:underline">
+              Esqueceu sua senha?
             </Link>
             <p className="text-sm text-muted-foreground">
               Não tem uma conta?{' '}
               <Link to="/cadastro" className="text-primary hover:underline">
-                Cadastre-se
+                Criar conta
               </Link>
             </p>
           </div>

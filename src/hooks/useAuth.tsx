@@ -1,8 +1,9 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client'
+import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import { jwtDecode } from 'jwt-decode'
 
 interface Profile {
   id: string
@@ -15,16 +16,24 @@ interface Profile {
   subscription_tier: string | null
 }
 
+interface CustomJWT {
+  user_role?: string
+  [key: string]: any
+}
+
 interface AuthContextType {
   user: User | null
   profile: Profile | null
   session: Session | null
+  userRole: string | null
   loading: boolean
   signUp: (email: string, password: string, userData?: any) => Promise<{ data: any; error: any }>
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<void>
-  isSupabaseAvailable: boolean
+  hasRole: (role: string) => boolean
+  isAdmin: () => boolean
+  isModerator: () => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,65 +42,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const isSupabaseAvailable = isSupabaseConfigured()
 
   useEffect(() => {
-    if (!isSupabaseAvailable) {
-      setLoading(false)
-      return
-    }
-
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      } else {
-        setLoading(false)
-      }
+      handleAuthStateChange(session)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id)
-        } else {
-          setProfile(null)
-          setLoading(false)
-        }
+        handleAuthStateChange(session)
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [isSupabaseAvailable])
+  }, [])
+
+  const handleAuthStateChange = async (session: Session | null) => {
+    setSession(session)
+    setUser(session?.user ?? null)
+    
+    if (session?.user) {
+      // Extract role from JWT token using Custom Claims
+      try {
+        const jwt = jwtDecode<CustomJWT>(session.access_token)
+        const role = jwt.user_role || 'student'
+        setUserRole(role)
+        
+        // Fetch user profile
+        await fetchProfile(session.user.id)
+      } catch (error) {
+        console.error('Error decoding JWT:', error)
+        setUserRole('student')
+        await fetchProfile(session.user.id)
+      }
+    } else {
+      setProfile(null)
+      setUserRole(null)
+      setLoading(false)
+    }
+  }
 
   const fetchProfile = async (userId: string) => {
-    if (!isSupabaseAvailable) return
-    
     try {
-      const response = await supabase
+      const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq(userId, userId)
+        .eq('id', userId)
+        .single()
 
-      if (typeof response.then === 'function') {
-        const { data, error } = await response
-        
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error)
-          return
-        }
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error)
+        return
+      }
 
-        if (data && data.length > 0) {
-          setProfile(data[0] as Profile)
-        }
+      if (data) {
+        setProfile(data as Profile)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -101,18 +111,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, userData: any = {}) => {
-    if (!isSupabaseAvailable) {
-      return { 
-        data: null, 
-        error: { message: 'Funcionalidade de cadastro não disponível - Supabase não configurado' } 
-      }
-    }
-
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: userData
+        data: userData,
+        emailRedirectTo: `${window.location.origin}/`
       }
     })
 
@@ -125,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else if (data.user && !data.session) {
       toast({
         title: "Verifique seu email",
-        description: "Um link de confirmação foi enviado para seu email.",
+        description: "Um link de confirmação foi enviado para seu email. Confirme sua conta para fazer login.",
       })
     }
 
@@ -133,32 +137,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseAvailable) {
-      return { 
-        data: null, 
-        error: { message: 'Funcionalidade de login não disponível - Supabase não configurado' } 
-      }
-    }
-
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
     if (error) {
-      toast({
-        title: "Erro no login",
-        description: error.message,
-        variant: "destructive",
-      })
+      if (error.message.includes('Email not confirmed')) {
+        toast({
+          title: "Email não confirmado",
+          description: "Verifique seu email e clique no link de confirmação antes de fazer login.",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Erro no login",
+          description: error.message,
+          variant: "destructive",
+        })
+      }
     }
 
     return { data, error }
   }
 
   const signOut = async () => {
-    if (!isSupabaseAvailable) return
-
     const { error } = await supabase.auth.signOut()
     
     if (error) {
@@ -171,6 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       setProfile(null)
       setSession(null)
+      setUserRole(null)
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
@@ -179,18 +183,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!isSupabaseAvailable || !user) return
+    if (!user) return
 
     try {
-      const response = await supabase
+      const { error } = await supabase
         .from('user_profiles')
         .update(updates)
-        .eq(user.id, user.id)
+        .eq('id', user.id)
 
-      if (typeof response.then === 'function') {
-        const { error } = await response
-        if (error) throw error
-      }
+      if (error) throw error
 
       setProfile(prev => prev ? { ...prev, ...updates } : null)
       
@@ -207,16 +208,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const hasRole = (role: string): boolean => {
+    return userRole === role || profile?.role === role
+  }
+
+  const isAdmin = (): boolean => {
+    return hasRole('admin')
+  }
+
+  const isModerator = (): boolean => {
+    return hasRole('moderator') || hasRole('admin')
+  }
+
   const value: AuthContextType = {
     user,
     profile,
     session,
+    userRole,
     loading,
     signUp,
     signIn,
     signOut,
     updateProfile,
-    isSupabaseAvailable,
+    hasRole,
+    isAdmin,
+    isModerator,
   }
 
   return (

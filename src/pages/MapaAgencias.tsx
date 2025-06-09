@@ -1,65 +1,134 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { MapPin, Star, Search, Filter, Users, Building, Phone, Globe } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
+import { AddAgencyModal } from '@/components/agency/AddAgencyModal'
+import { AgencyFilters, FilterState } from '@/components/agency/AgencyFilters'
+import { MapPin, Star, Phone, Globe, Building, Users, Plus } from 'lucide-react'
+
+interface Agency {
+  id: string
+  name: string
+  description: string | null
+  email: string | null
+  phone: string | null
+  website: string | null
+  city: string | null
+  state: string | null
+  areas: string[] | null
+  is_verified: boolean
+  rating: number | null
+  total_reviews: number | null
+}
 
 export default function MapaAgenciasPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-  
-  // Mock data for agencies
-  const agencies = [
-    {
-      id: 1,
-      name: "Agência UPE Carreiras",
-      description: "Especializada em conectar estudantes da UPE com oportunidades de estágio",
-      location: "Recife, PE",
-      rating: 4.8,
-      reviews: 156,
-      areas: ["Tecnologia", "Engenharia", "Administração"],
-      contact: {
-        phone: "(81) 3123-4567",
-        website: "www.upecarreiras.com.br"
-      },
-      verified: true
-    },
-    {
-      id: 2,
-      name: "Conecta Estágios",
-      description: "Mais de 10 anos conectando universitários às melhores empresas",
-      location: "Recife, PE",
-      rating: 4.5,
-      reviews: 89,
-      areas: ["Marketing", "Vendas", "RH"],
-      contact: {
-        phone: "(81) 2134-5678",
-        website: "www.conectaestagios.com"
-      },
-      verified: true
-    },
-    {
-      id: 3,
-      name: "TechStart Recife",
-      description: "Foco em startups e empresas de tecnologia",
-      location: "Recife, PE",
-      rating: 4.7,
-      reviews: 73,
-      areas: ["Desenvolvimento", "UI/UX", "Data Science"],
-      contact: {
-        phone: "(81) 3456-7890",
-        website: "www.techstartrecife.com"
-      },
-      verified: false
-    }
-  ]
+  const [agencies, setAgencies] = useState<Agency[]>([])
+  const [filteredAgencies, setFilteredAgencies] = useState<Agency[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const { user } = useAuth()
+  const { toast } = useToast()
 
-  const filteredAgencies = agencies.filter(agency =>
-    agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agency.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agency.areas.some(area => area.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  useEffect(() => {
+    fetchAgencies()
+  }, [])
+
+  const fetchAgencies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('agencies')
+        .select('*')
+        .eq('status', 'approved')
+        .eq('is_verified', true)
+        .order('rating', { ascending: false })
+
+      if (error) throw error
+
+      setAgencies(data || [])
+      setFilteredAgencies(data || [])
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar agências",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleFiltersChange = (filters: FilterState) => {
+    let filtered = [...agencies]
+
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      filtered = filtered.filter(agency => 
+        agency.name.toLowerCase().includes(searchLower) ||
+        agency.description?.toLowerCase().includes(searchLower) ||
+        agency.areas?.some(area => area.toLowerCase().includes(searchLower))
+      )
+    }
+
+    // City filter
+    if (filters.city) {
+      filtered = filtered.filter(agency => 
+        agency.city?.toLowerCase().includes(filters.city.toLowerCase())
+      )
+    }
+
+    // State filter
+    if (filters.state) {
+      filtered = filtered.filter(agency => agency.state === filters.state)
+    }
+
+    // Areas filter
+    if (filters.areas.length > 0) {
+      filtered = filtered.filter(agency => 
+        agency.areas?.some(area => 
+          filters.areas.some(filterArea => 
+            area.toLowerCase().includes(filterArea.toLowerCase())
+          )
+        )
+      )
+    }
+
+    // Rating filter
+    if (filters.minRating > 0) {
+      filtered = filtered.filter(agency => 
+        (agency.rating || 0) >= filters.minRating
+      )
+    }
+
+    // Verified only filter
+    if (filters.verifiedOnly) {
+      filtered = filtered.filter(agency => agency.is_verified)
+    }
+
+    setFilteredAgencies(filtered)
+  }
+
+  const stats = {
+    totalAgencies: agencies.length,
+    totalReviews: agencies.reduce((sum, agency) => sum + (agency.total_reviews || 0), 0),
+    averageRating: agencies.length > 0 
+      ? agencies.reduce((sum, agency) => sum + (agency.rating || 0), 0) / agencies.length 
+      : 0
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto py-8 px-4">
+          <div className="text-center">Carregando agências...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -74,25 +143,6 @@ export default function MapaAgenciasPage() {
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome, área ou localização..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline" className="flex items-center space-x-2">
-              <Filter className="h-4 w-4" />
-              <span>Filtros</span>
-            </Button>
-          </div>
-        </div>
-
         {/* Statistics */}
         <div className="max-w-4xl mx-auto mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -102,8 +152,8 @@ export default function MapaAgenciasPage() {
                   <Building className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">12</p>
-                  <p className="text-muted-foreground">Agências cadastradas</p>
+                  <p className="text-2xl font-bold">{stats.totalAgencies}</p>
+                  <p className="text-muted-foreground">Agências verificadas</p>
                 </div>
               </CardContent>
             </Card>
@@ -114,7 +164,7 @@ export default function MapaAgenciasPage() {
                   <Users className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">318</p>
+                  <p className="text-2xl font-bold">{stats.totalReviews}</p>
                   <p className="text-muted-foreground">Avaliações</p>
                 </div>
               </CardContent>
@@ -126,12 +176,30 @@ export default function MapaAgenciasPage() {
                   <Star className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">4.6</p>
+                  <p className="text-2xl font-bold">{stats.averageRating.toFixed(1)}</p>
                   <p className="text-muted-foreground">Média geral</p>
                 </div>
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Add Agency Button */}
+        {user && (
+          <div className="max-w-4xl mx-auto mb-6 flex justify-end">
+            <Button onClick={() => setShowAddModal(true)} className="flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span>Adicionar Agência</span>
+            </Button>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <AgencyFilters 
+            onFiltersChange={handleFiltersChange}
+            totalAgencies={filteredAgencies.length}
+          />
         </div>
 
         {/* Agencies List */}
@@ -144,24 +212,30 @@ export default function MapaAgenciasPage() {
                     <div>
                       <CardTitle className="flex items-center space-x-2">
                         <span>{agency.name}</span>
-                        {agency.verified && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        {agency.is_verified && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                             ✓ Verificada
                           </Badge>
                         )}
                       </CardTitle>
-                      <CardDescription className="mt-2">
-                        {agency.description}
-                      </CardDescription>
+                      {agency.description && (
+                        <CardDescription className="mt-2">
+                          {agency.description}
+                        </CardDescription>
+                      )}
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center space-x-1 mb-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{agency.rating}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {agency.reviews} avaliações
-                      </p>
+                      {agency.rating && (
+                        <>
+                          <div className="flex items-center space-x-1 mb-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-semibold">{agency.rating.toFixed(1)}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {agency.total_reviews} avaliações
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
@@ -169,34 +243,44 @@ export default function MapaAgenciasPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {/* Location */}
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{agency.location}</span>
-                    </div>
+                    {(agency.city || agency.state) && (
+                      <div className="flex items-center space-x-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>
+                          {[agency.city, agency.state].filter(Boolean).join(', ')}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Areas */}
-                    <div>
-                      <p className="text-sm font-medium mb-2">Áreas de atuação:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {agency.areas.map((area, index) => (
-                          <Badge key={index} variant="outline">
-                            {area}
-                          </Badge>
-                        ))}
+                    {agency.areas && agency.areas.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Áreas de atuação:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {agency.areas.map((area, index) => (
+                            <Badge key={index} variant="outline">
+                              {area}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Contact */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t">
                       <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Phone className="h-4 w-4" />
-                          <span>{agency.contact.phone}</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Globe className="h-4 w-4" />
-                          <span>{agency.contact.website}</span>
-                        </div>
+                        {agency.phone && (
+                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>{agency.phone}</span>
+                          </div>
+                        )}
+                        {agency.website && (
+                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                            <Globe className="h-4 w-4" />
+                            <span>{agency.website}</span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex space-x-2">
@@ -225,22 +309,14 @@ export default function MapaAgenciasPage() {
               </CardContent>
             </Card>
           )}
-
-          {/* Add Agency CTA */}
-          <Card className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-            <CardContent className="text-center py-8">
-              <h3 className="text-lg font-semibold mb-2">
-                Conhece uma agência que não está listada?
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Ajude outros estudantes adicionando agências que você conhece
-              </p>
-              <Button>
-                Adicionar Agência
-              </Button>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Add Agency Modal */}
+        <AddAgencyModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onAgencyAdded={fetchAgencies}
+        />
       </div>
     </div>
   )
