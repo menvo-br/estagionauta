@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,6 @@ import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useEffect } from 'react'
 
 export default function Login() {
   const [email, setEmail] = useState('')

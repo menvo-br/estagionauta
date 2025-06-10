@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
@@ -13,6 +14,11 @@ export default function Analisecurriculo() {
       setShowAuthModal(true)
     }
   }, [user, loading])
+
+  const handleAnalysisComplete = (analysisId: string) => {
+    console.log('Analysis completed:', analysisId)
+    // Navegar para a página de resultado ou fazer algo com o ID da análise
+  }
 
   if (loading) {
     return (
@@ -56,10 +62,8 @@ export default function Analisecurriculo() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto py-12 px-4">
-        
-        
         <div className="max-w-4xl mx-auto">
-          <ResumeAnalysisForm />
+          <ResumeAnalysisForm onComplete={handleAnalysisComplete} />
         </div>
       </div>
     </div>

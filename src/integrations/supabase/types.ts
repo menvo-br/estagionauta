@@ -12,6 +12,7 @@ export type Database = {
       agencies: {
         Row: {
           address: string | null
+          agency_type: string | null
           areas: string[] | null
           cep: string | null
           city: string | null
@@ -39,6 +40,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          agency_type?: string | null
           areas?: string[] | null
           cep?: string | null
           city?: string | null
@@ -66,6 +68,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          agency_type?: string | null
           areas?: string[] | null
           cep?: string | null
           city?: string | null
@@ -348,6 +351,39 @@ export type Database = {
           subject?: string
           template_name?: string | null
           to_email?: string
+        }
+        Relationships: []
+      }
+      resume_analyses: {
+        Row: {
+          analysis_data: Json | null
+          created_at: string
+          form_data: Json | null
+          id: string
+          resume_text: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          analysis_data?: Json | null
+          created_at?: string
+          form_data?: Json | null
+          id?: string
+          resume_text?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          analysis_data?: Json | null
+          created_at?: string
+          form_data?: Json | null
+          id?: string
+          resume_text?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
