@@ -13,6 +13,7 @@ import Sucesso from "./pages/Sucesso";
 import ResultadoCurriculo from "./pages/ResultadoCurriculo";
 import MapaAgencias from "./pages/MapaAgencias";
 import CalculadoraRecesso from "./pages/CalculadoraRecesso";
+import Precos from "./pages/Precos";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -44,6 +45,7 @@ const App = () => (
                   <Route path="/resultado-curriculo/:id" element={<ResultadoCurriculo />} />
                   <Route path="/mapa-agencias" element={<MapaAgencias />} />
                   <Route path="/calculadora-recesso" element={<CalculadoraRecesso />} />
+                  <Route path="/precos" element={<Precos />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Cadastro />} />

@@ -2,143 +2,116 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { ThemeToggle } from '@/components/theme-provider'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/use-toast'
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { 
   User, 
-  LogOut, 
   Settings, 
+  LogOut, 
   Rocket,
-  Shield,
-  UserCheck
+  Menu,
+  X,
+  MapPin,
+  Calculator,
+  FileText,
+  CreditCard,
+  Shield
 } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function Header() {
-  const { user, profile, signOut, isAdmin, isModerator } = useAuth()
+  const { user, signOut, userRole } = useAuth()
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
   }
 
-  const getUserInitials = () => {
-    if (profile?.full_name) {
-      return profile.full_name
-        .split(' ')
-        .map(name => name[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    }
-    return user?.email?.charAt(0).toUpperCase() || 'U'
+  const getUserInitials = (email: string) => {
+    return email.charAt(0).toUpperCase()
   }
 
-  const getRoleColor = () => {
-    switch (profile?.role) {
-      case 'admin': return 'bg-red-100 text-red-800'
-      case 'moderator': return 'bg-purple-100 text-purple-800'
-      case 'agency': return 'bg-blue-100 text-blue-800'
-      default: return 'bg-green-100 text-green-800'
-    }
-  }
+  const isAdmin = userRole === 'admin'
+  const isModerator = userRole === 'moderator' || userRole === 'admin'
 
-  const getRoleLabel = () => {
-    switch (profile?.role) {
-      case 'admin': return 'Admin'
-      case 'moderator': return 'Moderador'
-      case 'agency': return 'Agência'
-      default: return 'Estudante'
-    }
-  }
+  const navItems = [
+    { href: '/mapa-agencias', label: 'Mapa de Agências', icon: MapPin },
+    { href: '/calculadora-recesso', label: 'Calculadora', icon: Calculator },
+    { href: '/analise-curriculo', label: 'Análise IA', icon: FileText },
+    { href: '/precos', label: 'Preços', icon: CreditCard },
+  ]
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <Rocket className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-xl font-bold">Estagionauta</span>
-        </Link>
-
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
-            Início
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 flex">
+          <Link to="/" className="mr-6 flex items-center space-x-2">
+            <Rocket className="h-6 w-6 text-primary" />
+            <span className="font-bold">Estagionauta</span>
           </Link>
-          <Link to="/analise-curriculo" className="text-sm font-medium hover:text-primary transition-colors">
-            Análise de Currículo
-          </Link>
-          <Link to="/mapa-agencias" className="text-sm font-medium hover:text-primary transition-colors">
-            Mapa de Agências
-          </Link>
-          <Link to="/calculadora-recesso" className="text-sm font-medium hover:text-primary transition-colors">
-            Calculadora
-          </Link>
-        </nav>
+        </div>
 
-        {/* User Menu */}
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <>
-              {/* Credits Display */}
-              {profile?.credits !== undefined && (
-                <Badge variant="outline" className="text-xs">
-                  {profile.credits} créditos
-                </Badge>
-              )}
+        {/* Desktop Navigation */}
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {item.label}
+              </Link>
+            ))}
+            {isModerator && (
+              <Link
+                to="/admin"
+                className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center space-x-1"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Admin</span>
+              </Link>
+            )}
+          </nav>
 
-              {/* Admin/Moderator Access */}
-              {(isAdmin() || isModerator()) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/admin')}
-                  className="flex items-center space-x-1"
-                >
-                  <Shield className="h-4 w-4" />
-                  <span>Admin</span>
-                </Button>
-              )}
-
-              {/* User Dropdown */}
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
+            
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={profile?.avatar_url || undefined} />
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                      <AvatarFallback>
+                        {getUserInitials(user.email || '')}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      <p className="font-medium">{profile?.full_name || user.email}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                      <Badge variant="secondary" className={`text-xs w-fit ${getRoleColor()}`}>
-                        {getRoleLabel()}
-                      </Badge>
-                    </div>
+                  <div className="flex flex-col space-y-1 p-2">
+                    <p className="text-sm font-medium leading-none">{user.email}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {userRole === 'admin' ? 'Administrador' : 
+                       userRole === 'moderator' ? 'Moderador' : 'Usuário'}
+                    </p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                  <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
                     <span>Perfil</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/configuracoes')}>
+                  <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configurações</span>
                   </DropdownMenuItem>
@@ -149,17 +122,74 @@ export function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" asChild>
-                <Link to="/login">Entrar</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/cadastro">Cadastrar</Link>
-              </Button>
-            </div>
-          )}
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Entrar</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/cadastro">Cadastrar</Link>
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile menu */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="md:hidden"
+                  size="icon"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col space-y-4">
+                  {navItems.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="flex items-center space-x-2 text-lg font-medium"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    )
+                  })}
+                  {isModerator && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center space-x-2 text-lg font-medium"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Shield className="h-5 w-5" />
+                      <span>Admin</span>
+                    </Link>
+                  )}
+                  
+                  {!user && (
+                    <div className="flex flex-col space-y-2 pt-4">
+                      <Button variant="outline" asChild>
+                        <Link to="/login" onClick={() => setIsOpen(false)}>
+                          Entrar
+                        </Link>
+                      </Button>
+                      <Button asChild>
+                        <Link to="/cadastro" onClick={() => setIsOpen(false)}>
+                          Cadastrar
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
