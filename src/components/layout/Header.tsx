@@ -1,8 +1,7 @@
-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme-provider'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { useAuth } from '@/hooks/useAuth'
 import { 
   DropdownMenu,
@@ -49,6 +48,7 @@ export function Header() {
     { href: '/calculadora-recesso', label: 'Calculadora', icon: Calculator },
     { href: '/analise-curriculo', label: 'Análise IA', icon: FileText },
     { href: '/precos', label: 'Preços', icon: CreditCard },
+    { href: '/afiliados', label: 'Afiliados', icon: User },
   ]
 
   return (

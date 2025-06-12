@@ -354,6 +354,30 @@ export type Database = {
         }
         Relationships: []
       }
+      feedbacks: {
+        Row: {
+          comment: string | null
+          created_at: string
+          email: string
+          id: number
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          email: string
+          id?: number
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          email?: string
+          id?: number
+          rating?: number
+        }
+        Relationships: []
+      }
       resume_analyses: {
         Row: {
           analysis_data: Json | null
