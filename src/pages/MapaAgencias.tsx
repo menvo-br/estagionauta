@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { AgencyFilters, FilterState } from '@/components/agency/AgencyFilters'
 import { GoogleMap } from '@/components/agency/GoogleMap'
 import { AgencyForm } from '@/components/agency/AgencyForm'
+import { AddAgencyModal } from '@/components/agency/AddAgencyModal'
 import { MapPin, Star, Phone, Globe, Building, Users, Plus, Map, List, Edit, Trash2 } from 'lucide-react'
 
 interface Agency {
@@ -33,6 +34,7 @@ export default function MapaAgenciasPage() {
   const [filteredAgencies, setFilteredAgencies] = useState<Agency[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const { user } = useAuth()
   const { toast } = useToast()
 
@@ -61,6 +63,40 @@ export default function MapaAgenciasPage() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleLocationToggle = () => {
+    if (userLocation) {
+      setUserLocation(null)
+    } else {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            })
+            toast({
+              title: "Localização ativada",
+              description: "Agora você pode filtrar por distância",
+            })
+          },
+          (error) => {
+            toast({
+              title: "Erro ao obter localização",
+              description: "Verifique se você permitiu o acesso à localização",
+              variant: "destructive",
+            })
+          }
+        )
+      } else {
+        toast({
+          title: "Geolocalização não suportada",
+          description: "Seu navegador não suporta geolocalização",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -202,6 +238,8 @@ export default function MapaAgenciasPage() {
           <AgencyFilters 
             onFiltersChange={handleFiltersChange}
             totalAgencies={filteredAgencies.length}
+            userLocation={userLocation}
+            onLocationToggle={handleLocationToggle}
           />
         </div>
 
