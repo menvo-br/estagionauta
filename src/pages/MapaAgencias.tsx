@@ -1,14 +1,17 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
-import { AddAgencyModal } from '@/components/agency/AddAgencyModal'
 import { AgencyFilters, FilterState } from '@/components/agency/AgencyFilters'
-import { MapPin, Star, Phone, Globe, Building, Users, Plus } from 'lucide-react'
+import { GoogleMap } from '@/components/agency/GoogleMap'
+import { AgencyForm } from '@/components/agency/AgencyForm'
+import { MapPin, Star, Phone, Globe, Building, Users, Plus, Map, List, Edit, Trash2 } from 'lucide-react'
 
 interface Agency {
   id: string

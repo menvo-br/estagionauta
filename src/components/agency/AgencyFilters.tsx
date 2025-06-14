@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Filter, X, Star } from 'lucide-react'
+import { Search, Filter, X, Star, MapPin, Navigation } from 'lucide-react'
 
 interface AgencyFiltersProps {
   onFiltersChange: (filters: FilterState) => void
   totalAgencies: number
+  userLocation: { lat: number; lng: number } | null
+  onLocationToggle: () => void
 }
 
 export interface FilterState {
@@ -18,6 +20,8 @@ export interface FilterState {
   areas: string[]
   minRating: number
   verifiedOnly: boolean
+  maxDistance: number
+  sortBy: 'distance' | 'rating' | 'name'
 }
 
 const popularAreas = [
@@ -31,14 +35,16 @@ const states = [
   'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ]
 
-export function AgencyFilters({ onFiltersChange, totalAgencies }: AgencyFiltersProps) {
+export function AgencyFilters({ onFiltersChange, totalAgencies, userLocation, onLocationToggle }: AgencyFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     city: '',
     state: '',
     areas: [],
     minRating: 0,
-    verifiedOnly: true
+    verifiedOnly: true,
+    maxDistance: 0,
+    sortBy: 'distance'
   })
 
   const [showAllFilters, setShowAllFilters] = useState(false)
@@ -66,14 +72,16 @@ export function AgencyFilters({ onFiltersChange, totalAgencies }: AgencyFiltersP
       state: '',
       areas: [],
       minRating: 0,
-      verifiedOnly: true
+      verifiedOnly: true,
+      maxDistance: 0,
+      sortBy: 'distance'
     }
     setFilters(clearedFilters)
     onFiltersChange(clearedFilters)
   }
 
   const hasActiveFilters = filters.search || filters.city || filters.state || 
-    filters.areas.length > 0 || filters.minRating > 0 || !filters.verifiedOnly
+    filters.areas.length > 0 || filters.minRating > 0 || !filters.verifiedOnly || filters.maxDistance > 0
 
   return (
     <div className="space-y-4">
@@ -101,6 +109,16 @@ export function AgencyFilters({ onFiltersChange, totalAgencies }: AgencyFiltersP
         </Button>
 
         <Button
+          variant={userLocation ? "default" : "outline"}
+          size="sm"
+          onClick={onLocationToggle}
+          className="flex items-center space-x-1"
+        >
+          <Navigation className="h-4 w-4" />
+          <span>{userLocation ? 'Localização ativa' : 'Ativar localização'}</span>
+        </Button>
+
+        <Button
           variant={filters.verifiedOnly ? "default" : "outline"}
           size="sm"
           onClick={() => updateFilters({ verifiedOnly: !filters.verifiedOnly })}
@@ -123,7 +141,7 @@ export function AgencyFilters({ onFiltersChange, totalAgencies }: AgencyFiltersP
       {/* Advanced Filters */}
       {showAllFilters && (
         <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Cidade</label>
               <Input
@@ -162,6 +180,47 @@ export function AgencyFilters({ onFiltersChange, totalAgencies }: AgencyFiltersP
                   <SelectItem value="3">3+ estrelas</SelectItem>
                   <SelectItem value="4">4+ estrelas</SelectItem>
                   <SelectItem value="4.5">4.5+ estrelas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {userLocation && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Distância máxima</label>
+                <Select 
+                  value={filters.maxDistance.toString()} 
+                  onValueChange={(value) => updateFilters({ maxDistance: parseInt(value) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Qualquer distância" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Qualquer distância</SelectItem>
+                    <SelectItem value="5">Até 5km</SelectItem>
+                    <SelectItem value="10">Até 10km</SelectItem>
+                    <SelectItem value="25">Até 25km</SelectItem>
+                    <SelectItem value="50">Até 50km</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          {/* Sort and Areas Filter */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Ordenar por</label>
+              <Select 
+                value={filters.sortBy} 
+                onValueChange={(value: 'distance' | 'rating' | 'name') => updateFilters({ sortBy: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {userLocation && <SelectItem value="distance">Distância</SelectItem>}
+                  <SelectItem value="rating">Avaliação</SelectItem>
+                  <SelectItem value="name">Nome</SelectItem>
                 </SelectContent>
               </Select>
             </div>
