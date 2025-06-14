@@ -72,14 +72,14 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Três serviços essenciais para sua carreira
+              Seis serviços essenciais para sua carreira
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Ferramentas criadas especialmente para universitários que querem se destacar no mercado de trabalho
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Análise de Currículo */}
             <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-colors"></div>
@@ -182,6 +182,114 @@ export default function HomePage() {
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/calculadora-recesso">
                     Calcular Recesso
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Simulador de Entrevistas */}
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 group-hover:from-orange-500/10 group-hover:to-red-500/10 transition-colors"></div>
+              <CardHeader className="relative">
+                <div className="h-12 w-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-orange-600" />
+                </div>
+                <CardTitle className="text-xl">Simulador de Entrevistas</CardTitle>
+                <CardDescription>
+                  Pratique entrevistas com IA e receba feedback personalizado
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative">
+                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Diversas áreas de atuação
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Gravação e análise da entrevista
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Relatório detalhado de pontos fortes e fracos
+                  </li>
+                </ul>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/simulador-entrevistas">
+                    Em Desenvolvimento
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Kanban de Candidaturas */}
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 group-hover:from-teal-500/10 group-hover:to-cyan-500/10 transition-colors"></div>
+              <CardHeader className="relative">
+                <div className="h-12 w-12 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="h-6 w-6 text-teal-600" />
+                </div>
+                <CardTitle className="text-xl">Kanban de Candidaturas</CardTitle>
+                <CardDescription>
+                  Organize suas candidaturas com um Kanban inteligente
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative">
+                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Visualização Kanban e Lista
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Lembretes automáticos para entrevistas
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Integração com Google Calendar
+                  </li>
+                </ul>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/kanban-candidaturas">
+                    Em Desenvolvimento
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Gerador de Currículos */}
+            <Card className="relative overflow-hidden group hover:shadow-xl transition-shadow">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 transition-colors"></div>
+              <CardHeader className="relative">
+                <div className="h-12 w-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-indigo-600" />
+                </div>
+                <CardTitle className="text-xl">Gerador de Currículos</CardTitle>
+                <CardDescription>
+                  Adapte seu currículo automaticamente para cada vaga com modelos exclusivos
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative">
+                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Adaptação automática para cada vaga
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Modelos desenvolvidos por especialistas
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    Exportação em múltiplos formatos
+                  </li>
+                </ul>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/gerador-curriculos">
+                    Em Desenvolvimento
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

@@ -19,6 +19,9 @@ import Cadastro from "./pages/Cadastro";
 import EsqueciSenha from "./pages/EsqueciSenha";
 import NotFound from "./pages/NotFound";
 import Afiliados from "./pages/Afiliados";
+import SimuladorEntrevistas from "./pages/SimuladorEntrevistas";
+import KanbanCandidaturas from "./pages/KanbanCandidaturas";
+import GeradorCurriculos from "./pages/GeradorCurriculos";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +50,9 @@ const App = () => (
                   <Route path="/calculadora-recesso" element={<CalculadoraRecesso />} />
                   <Route path="/precos" element={<Precos />} />
                   <Route path="/afiliados" element={<Afiliados />} />
+                  <Route path="/simulador-entrevistas" element={<SimuladorEntrevistas />} />
+                  <Route path="/kanban-candidaturas" element={<KanbanCandidaturas />} />
+                  <Route path="/gerador-curriculos" element={<GeradorCurriculos />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Cadastro />} />
